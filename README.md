@@ -24,21 +24,18 @@ LetsDefend (primary) + Azure Sentinel + reframing fraud investigation experience
 ---
 
 ## Repository Structure
-angelrbolivar-soc-portfolio/
-|
-+-- README.md
-|
-+-- projects/
-|   +-- fraud-triage-dashboard/
-|
-+-- labs/
-|   +-- azure-sentinel/
-|   +-- letsdefend/
-|   +-- tryhackme-tier-s/
-|
-+-- playbooks/
-+-- phishing-triage.md
-+-- suspicious-login.md
+## Repository Structure
+
+- `README.md` — Main portfolio page
+- `projects/` — Tools and dashboards
+  - `fraud-triage-dashboard/`
+- `labs/` — Hands-on practice
+  - `azure-sentinel/`
+  - `letsdefend/`
+  - `tryhackme-tier-s/`
+- `playbooks/` — Incident response documentation
+  - `phishing-triage.md`
+  - `suspicious-login.md`
 ## Projects
 
 ### Fraud Triage Dashboard (In Progress)
