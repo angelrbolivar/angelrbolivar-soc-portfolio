@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block title %}FRAUDETECTIVE SOC - HOME{% endblock %}
+{# AI Assistance Disclosure:
+I used Grok (xAI) to help with code structure, template inheritance, detailed comments, and small improvements.
+The design, content,and all fraud-related logic are my own work based on my professional experience.#}
+
+{% block content %}
+
+    {# everything inside this block replaces the block content in layout.html #}
+    <div class="text-center mt-5">
+         {# text in size h1 #}
+        <h1>WELCOME TO FRAUDETECTIVE SOC</h1>
+         {# define paragraph of class lead for bootstrap design #}
+        <p class="lead">Your SOC simulator for fraud alerts</p>
+         {# hyperlink button to go to dashboard #}
+        <a href="/dashboard" class="btn btn-danger btn-lg">Go to Dashboard</a>
+    </div>
+
+    {# picture to make the homepage look 'bonita #}
+    <div class="text-center mt-4">
+        <img src="https://images.pexels.com/photos/14066351/pexels-photo-14066351.jpeg" alt="Majestic Lion"
+            class="img-fluid rounded">
+    </div>
+
+
+{% endblock %}

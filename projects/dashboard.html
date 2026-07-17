@@ -1,0 +1,189 @@
+{% extends "layout.html" %}
+{% block title %}FD SOC DASHBOARD{% endblock %}
+<!--AI Assistance Disclosure:
+I used Grok (xAI) to help with code structure, template inheritance, detailed comments, and small improvements.
+The design, content,and all fraud-related logic are my own work based on my professional experience.-->
+{% block content %}
+<!-- Main containers (it centers)-->
+<div class="container mt-5">
+    <!-- Page title -->
+    <h1 class="text-center mb-4">FD SOC DASHBOARD</h1>
+    <!-- action buttons to generate alers or to clear them-->
+
+    <!--Action buttons calling routes from app.py-->
+    <div class="mb-3">
+        <a href="/generate" class="btn btn-success">Generate alerts (simulated)</a>
+        <!-- button to generate the alerts-->
+
+        <a href="/clear" class="btn btn-danger">Clear all alerts</a> <!-- button to clear the alerts (danger gives red color)-->
+
+        <a href="/export" class="btn btn-info ms-2">Export to CSV</a> <!-- button to export to csv (info gives blue color) and ms-2 left margin of 2-->
+    </div>
+
+    <!-- charts section -->
+    <div class="row mb-4">
+        <!-- Severity pie chart on the left-->
+        <div class="col-md-6">
+            <h5 class="text-center">Severity Distribution</h5>
+            <canvas id="severityChart"></canvas>
+        </div>
+        <!-- Alerts by rule type bar chart-->
+        <div class="col-md-6">
+            <h5 class="text-center">Alerts by Rule Type</h5>
+            <canvas id="ruleChart"></canvas>
+        </div>
+    </div>
+
+    <!--Main table that shows all alerts-->
+    <table class="table table-dark table-striped">
+        <thead>
+            <tr>
+                <th>Alert ID</th>
+                <th>Rule Triggered</th>
+                <th>Severity</th>
+                <th>Status</th>
+                <th>Details</th>
+                <th>Actions (Triage)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- this repeats the <tr> for every alert passed from app.py so the table is created-->
+            {% for alert in alerts %}
+            <!-- if conditions to change color of alert row depending if it was approved, suspended or escalated-->
+            <tr
+                class="{% if alert.status == 'Suspended' %}table-danger{% elif alert.status == 'Approved' %}table-success{% elif alert.status == 'Escalated' %}table-warning{% else %}table-dark{% endif %}">
+                <td>{{ alert.id }}</td>
+                <td>{{ alert.rule }}</td>
+                <td>
+                    <!-- Dynamic color depending on severity
+                     badge is bootstrap that gives the text a rounded box like a pill shape
+                     if the alert severity is high/medium use the class badge- high(red background) /medium(yellow background)
+                     else bg-secondary (gray bakground) -->
+                    <span
+                        class="badge {{ 'badge-high' if alert.severity == 'High' else 'badge-medium' if alert.severity == 'Medium' else 'bg-secondary' }}">
+                        <!--prints actual word 'High' 'Medium' or 'Low' -->
+                        {{ alert.severity }}
+                    </span>
+                </td>
+                <td>{{ alert.status }}</td>
+                <td>{{ alert.details }}</td>
+                <!-- buttons to decide what to do with the alert-->
+                <!-- example: click suspend goes to /triage/1111/suspended-->
+                <td>
+                    <!-- onclick return confirm. shows an alert to see if we are sure to proceed in order to prevent accidental clicks
+                     btn-sm means button small... danger is red, success is green and warning is yellow colors for the buttons-->
+                    <a href="/triage/{{ alert.id }}/suspended" class="btn btn-sm btn-danger"
+                        onclick="return confirm('Are you sure you want to SUSPEND this alert? This action cannot be undone.')">Suspend</a>
+                    <a href="/triage/{{ alert.id }}/approved" class="btn btn-sm btn-success">Approve</a>
+                    <a href="/triage/{{ alert.id }}/escalated" class="btn btn-sm btn-warning">Escalate</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+    <!-- footer-->
+    <p class="text-center text-danger">This is a real SOC dashboard - more alerts coming</p>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+    // data from flask obtained thanks to jinja
+    // | tojson | safe = converts Python list to JSON (javascript object format)
+    // so alerts from app.py is converted to JSON and 'safe' indicates jinja that info is safe to be handled.
+    const alerts = {{ alerts | tojson | safe }};
+
+    // only create charts if we have alerts
+    if (alerts.length > 0) {
+
+        // variables to count severity of pie chart
+        let high = 0, medium = 0, low = 0;
+        let ruleCounts = {}; // purpose is to count how many times each rule appears, example: { "Gender mismatch": 5, "High-risk corridor": 3 }
+
+        // loop through every alert and count things
+        // forEach is a javascript method that will run the code inside for every item in the array/list... like a for loop.
+        alerts.forEach(alert => {
+            // count severity for the pie chart.
+            if (alert.severity === "High") high++;  // ++ means add 1
+            else if (alert.severity === "Medium") medium++;  // ++ means add 1
+            else low++;  // ++ means add 1
+
+            // Count times each rule appears
+            // if the rule does not exist, start from 0 and and 1.
+            ruleCounts[alert.rule] = (ruleCounts[alert.rule] || 0) + 1;
+        });
+
+        // Severity pie chart
+        // // it connects with our canvas declared earlier in the html part
+        new Chart(document.getElementById('severityChart'), {
+            type: 'pie', // pie chart type we wish
+            data: {
+                labels: ['High', 'Medium', 'Low'], // labels for each slice  it indicates what each colored slice represent
+                datasets: [{
+                    data: [high, medium, low], // the actual numbers we count in the last step. to decide the size of each slce of the pie chart
+                    backgroundColor: ['#dc3545', '#ffc107', '#6c757d'] // colors of each type red for high, yellow for medium and gray for low
+                }]
+            },
+            options: { responsive: true } // helps chart resize with the screen size.
+        });
+
+        // Rule types bar chart
+        // it connects with our canvas declared earlier in the html part
+        new Chart(document.getElementById('ruleChart'), {
+            type: 'bar', // type of the chart to be created
+            data: {
+                labels: Object.keys(ruleCounts), // gets all the rule names and it puts it on the bottom of the chat to indicate which bar corresponds to each rule
+                datasets: [{
+                    label: 'Number of Alerts', // name that appears in the small legend box at the top of the chart
+                    data: Object.values(ruleCounts), // get all the rule counts so we know how tall the bar should be for each specificl rule
+                    backgroundColor: '#0d6efd' // color blue for the bars
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } } // start y axis at 0
+            }
+        });
+    }
+    // Export table to CSV
+    function exportToCSV() {
+        // creates the header row of the csv
+        let csv = "Alert ID,Rule,Severity,Status,Details\n"; // \n indicated go to new line/row
+        // select all rows in the table body
+        const rows = document.querySelectorAll("tbody tr"); // finds every <tr> in <tbody>
+
+        // loop through each row of the table
+        // forEach means for every row do the following...
+        rows.forEach(row => {
+            // get all <td> cells in this row
+            const cells = row.querySelectorAll("td");
+
+            const rowData = [];
+
+            // loop through each cell and add its text to the row
+            cells.forEach(cell => {
+                // take the text inside the cell, remove spaces with .trim() and wrap it in quotes
+                rowData.push('"' + cell.textContent.trim() + '"');
+            });
+            // join the cells with commas and add a new line at the end
+            csv += rowData.join(",") + "\n";
+        });
+        // create a file like object in memory called blob
+        // is like a temporary file existing in browser
+        const csvFile = new Blob([csv], { type: "text/csv" });
+
+        // creating a temporary download link <a>
+        const link = document.createElement("a");
+        // tell the link where the file is.
+        link.href = URL.createObjectURL(csvFile);
+        // tell browser the name for the file that will be downloaded.
+        link.download = "fraudetect_alerts.csv"; // Name of the downloaded file
+        // Automatically click to get it downloaded.
+        link.click();
+    }
+</script>
+{% endblock %}
