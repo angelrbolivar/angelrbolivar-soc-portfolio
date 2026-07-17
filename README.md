@@ -24,7 +24,6 @@ LetsDefend (primary) + Azure Sentinel + reframing fraud investigation experience
 ---
 
 ## Repository Structure
-## Repository Structure
 
 - `README.md` — Main portfolio page
 - `projects/` — Tools and dashboards
