@@ -36,11 +36,6 @@ angelrbolivar-soc-portfolio/
 ├── phishing-triage.md
 └── suspicious-login.md
 
-
-
-
----
-
 ## Projects
 
 ### Fraud Triage Dashboard (In Progress)
