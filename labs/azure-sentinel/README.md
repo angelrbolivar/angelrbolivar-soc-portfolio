@@ -146,6 +146,25 @@ This lab intentionally ships **three tuned rules** rather than a large ruleset:
 - Every rule includes **entity mapping**, so incidents auto-populate IP and host entities and are immediately pivotable during investigation.
 - One **deep, documented investigation** demonstrates more analyst capability than a wall of shallow alerts.
 
+
+## Screenshots
+
+### Analytics Rules Overview
+![Rules List](screenshots/list%20of%20analytics.png)
+
+### Rule 1 – High Volume Failed Logons from Single IP
+![Rule 1](screenshots/rule%203.png)
+
+### Rule 2 – Credential Stuffing
+![Rule 2](screenshots/rule2.png)
+
+### Rule 3 – High Volume Failed Logons Burst
+![Rule 3](screenshots/rule%201.png)
+
+### Attack Map (GeoIP)
+![Attack Map](screenshots/map.png)
+
+
 ## Credits
 
 Base environment from **Josh Madakor's Cyber Home Lab (Microsoft Sentinel 2025)**. All detection rules, tuning decisions, and the investigation write-up are original extensions of that lab.
