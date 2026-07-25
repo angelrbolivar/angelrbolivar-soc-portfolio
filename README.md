@@ -1,119 +1,54 @@
-# 🛡️ angelrbolivar | Junior SOC Analyst Portfolio
+# Angel Rodriguez Bolivar — SOC Analyst Portfolio
 
-**SOC Analyst Portfolio | Projects, Labs & Playbooks**
-
----
-
-## About
-
-Aspiring Junior SOC Analyst focused on building real operational skills in alert triage, incident response, and security monitoring.
-
-**Current Focus:**  
-Azure Sentinel + documenting high-signal TryHackMe SIEM triage rooms.
-
-**Background Highlights:**
-- CompTIA Security+
-- Google Cybersecurity Professional Certificate
-- TryHackMe SOC Level 1
-- 2+ years of fraud alert triage and decision-making at Remitly (Approve / Suspend / Escalate under defined rules)
-- Harvard CS50x
-- ISO 27001 Basic 
-- Bilingual English / Spanish
-
-**Goal:** Land a Junior SOC Analyst role and move into full-time cybersecurity operations.
+**Junior SOC Analyst candidate focused on alert triage and investigation documentation.**
+Completed SIEM investigations with evidence, verdicts, MITRE mapping, and recommendations.
 
 ---
 
-## Repository Structure
+## Core Evidence
 
-- `README.md` — Main portfolio page
-- `projects/` — Tools and dashboards
-  - `fraud-triage-dashboard/`
-- `labs/` — Hands-on practice
-  - `azure-sentinel/`
-  - `tryhackme/`
-    - `alert-triage-with-splunk/`
-    - `alert-triage-with-elastic/`
-- `playbooks/` — Incident response documentation
-  - `phishing-triage.md`
-  - `suspicious-login.md`
+### [Azure Sentinel — Honeypot Brute-Force Investigation](labs/azure-sentinel)
 
----
+End-to-end investigation of real attack traffic against a deliberately exposed honeypot, in Microsoft Sentinel.
 
-## Projects
+- Investigated **728 failed authentication attempts** targeting the honeypot
+- Built **custom KQL detection rules** to surface the attack pattern
+- Documented a **True Positive** verdict with supporting evidence
+- Mapped the activity to **MITRE ATT&CK** and delivered hardening recommendations
 
-### Fraud Triage Dashboard (In Progress)
-Reframed CS50 final project as a SOC L1-style alert triage simulation.
+### [TryHackMe — SIEM Alert Triage](labs/tryhackme)
 
-**Focus:** Rule-based decision making (velocity, geo anomalies, amount thresholds, identity mismatch) with clear escalate/approve/suspend logic.
+Triage investigations across two SIEM platforms, documented with investigation screenshots.
 
-- [ ] Polish README with screenshots and decision framework
-- [ ] Add structured investigation examples
+- [**Alert Triage with Splunk**](labs/tryhackme/alert-triage-with-splunk)
+- [**Alert Triage with Elastic**](labs/tryhackme/alert-triage-with-elastic)
+
+Focus: log analysis, alert validation, and clear True Positive identification.
 
 ---
 
-## Labs & Hands-on Experience
+## Background
 
-### Azure Sentinel
-Building practical experience with Microsoft’s SIEM platform (highly relevant for many SOC environments).
-
-**Planned Content:**
-- Lab environment setup
-- Custom detection rules (KQL)
-- Investigation walkthroughs
-
-### TryHackMe – High-Signal SIEM Triage Rooms
-
-Completed and documented with investigation screenshots:
-
-- [Alert Triage With Splunk](./labs/tryhackme/alert-triage-with-splunk/)
-- [Alert Triage With Elastic](./labs/tryhackme/alert-triage-with-elastic/)
-
-Focus: Real alert investigation, log analysis, and clear True Positive identification.
+- **Remitly — 2+ years fraud / customer protection triage.** Approve / Suspend / Escalate decisions on live cases under incomplete information — the same judgment model as SOC alert triage.
+- **CompTIA Security+**
+- **Google Cybersecurity Professional Certificate**
+- **TryHackMe SOC Level 1**
+- **Harvard CS50x**
+- **Bilingual — English / Spanish**
 
 ---
 
-## Playbooks
+## Skills Demonstrated
 
-Documented processes for common SOC scenarios.
-
-- [Phishing Triage Playbook](./playbooks/phishing-triage.md) *(In Progress)*
-- [Suspicious Login Investigation Playbook](./playbooks/suspicious-login.md) *(In Progress)*
-
----
-
-## Skills
-
-**Core**
-- Alert Triage & Investigation
-- Incident Response Documentation
-- Log Analysis
-- Decision Making Under Incomplete Information
-
-**Tools & Platforms**
-- Azure Sentinel (in progress)
-- Splunk
-- Elastic / Kibana
-- TryHackMe (SOC path)
-
-**Other**
-- Strong written communication
-- Bilingual (English / Spanish)
-
----
-
-## How to Use This Repository
-
-This repo serves as living evidence of practical SOC skill development.  
-Each section contains investigations, labs, and documentation that demonstrate triage judgment and clear communication — the two most important skills for a Junior SOC Analyst.
+- Alert triage and True / False Positive determination
+- Log analysis (KQL, Splunk, Elastic)
+- Detection logic — custom KQL analytics rules
+- Investigation documentation: evidence → verdict → recommendation
+- Decision-making under incomplete information
 
 ---
 
 ## Contact
 
 - **GitHub:** [@angelrbolivar](https://github.com/angelrbolivar)
-- **LinkedIn:** *(https://www.linkedin.com/in/angel-rodriguez-bolivar-3a6166361/)*
-
----
-
-*Actively building toward a Junior SOC Analyst role. Open to opportunities and feedback.*
+- **LinkedIn:** [Angel Rodriguez Bolivar](https://www.linkedin.com/in/angel-rodriguez-bolivar-3a6166361/)
