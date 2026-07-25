@@ -14,6 +14,9 @@ This room teaches a systematic approach to triaging SOC alerts, including priori
 - Writing clear triage comments
 
 ## Evidence
-Successfully triaged all three priority alerts in the room.
 
+### Alert Prioritisation
+![Alert Prioritisation](thm-alert-prioritisation.png)
+
+### Alert Triage Process & Results
 ![Triage Process & Results](thm-alert-triage.png)
