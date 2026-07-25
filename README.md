@@ -9,7 +9,7 @@
 Aspiring Junior SOC Analyst focused on building real operational skills in alert triage, incident response, and security monitoring.
 
 **Current Focus:**  
-LetsDefend (primary) + Azure Sentinel + reframing fraud investigation experience into SOC-relevant work.
+Azure Sentinel + documenting high-signal TryHackMe SIEM triage rooms.
 
 **Background Highlights:**
 - CompTIA Security+
@@ -17,6 +17,7 @@ LetsDefend (primary) + Azure Sentinel + reframing fraud investigation experience
 - TryHackMe SOC Level 1
 - 2+ years of fraud alert triage and decision-making at Remitly (Approve / Suspend / Escalate under defined rules)
 - Harvard CS50x
+- ISO 27001 Basic 
 - Bilingual English / Spanish
 
 **Goal:** Land a Junior SOC Analyst role and move into full-time cybersecurity operations.
@@ -30,11 +31,15 @@ LetsDefend (primary) + Azure Sentinel + reframing fraud investigation experience
   - `fraud-triage-dashboard/`
 - `labs/` — Hands-on practice
   - `azure-sentinel/`
-  - `letsdefend/`
-  - `tryhackme-tier-s/`
+  - `tryhackme/`
+    - `alert-triage-with-splunk/`
+    - `alert-triage-with-elastic/`
 - `playbooks/` — Incident response documentation
   - `phishing-triage.md`
   - `suspicious-login.md`
+
+---
+
 ## Projects
 
 ### Fraud Triage Dashboard (In Progress)
@@ -49,11 +54,6 @@ Reframed CS50 final project as a SOC L1-style alert triage simulation.
 
 ## Labs & Hands-on Experience
 
-### LetsDefend (Primary Focus)
-Actively working through real SOC alerts with proper investigation and documentation.
-
-**Goal:** Complete and document high-quality investigations with clear verdicts and lessons learned.
-
 ### Azure Sentinel
 Building practical experience with Microsoft’s SIEM platform (highly relevant for many SOC environments).
 
@@ -62,14 +62,14 @@ Building practical experience with Microsoft’s SIEM platform (highly relevant 
 - Custom detection rules (KQL)
 - Investigation walkthroughs
 
-### TryHackMe – Tier S Rooms (Re-mastering)
-Focusing only on high-signal rooms and re-completing them cold:
+### TryHackMe – High-Signal SIEM Triage Rooms
 
-- SOC L1 Alert Triage
-- SOC L1 Alert Reporting
-- SOC Workbooks and Lookups
-- Alert Triage With Splunk
-- Alert Triage With Elastic
+Completed and documented with investigation screenshots:
+
+- [Alert Triage With Splunk](./labs/tryhackme/alert-triage-with-splunk/)
+- [Alert Triage With Elastic](./labs/tryhackme/alert-triage-with-elastic/)
+
+Focus: Real alert investigation, log analysis, and clear True Positive identification.
 
 ---
 
@@ -91,10 +91,10 @@ Documented processes for common SOC scenarios.
 - Decision Making Under Incomplete Information
 
 **Tools & Platforms**
-- LetsDefend
 - Azure Sentinel (in progress)
+- Splunk
+- Elastic / Kibana
 - TryHackMe (SOC path)
-- Splunk & Elastic (foundational)
 
 **Other**
 - Strong written communication
@@ -112,8 +112,7 @@ Each section contains investigations, labs, and documentation that demonstrate t
 ## Contact
 
 - **GitHub:** [@angelrbolivar](https://github.com/angelrbolivar)
-- **LinkedIn:** *(Add your LinkedIn link here)*
-- **Email:** *(Add if you want)*
+- **LinkedIn:** *(https://www.linkedin.com/in/angel-rodriguez-bolivar-3a6166361/)*
 
 ---
 
