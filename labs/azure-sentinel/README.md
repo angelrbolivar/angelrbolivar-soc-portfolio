@@ -1,6 +1,6 @@
 # Azure Sentinel Honeypot Lab — Brute-Force Detection & Investigation
 
-Custom detection engineering and incident investigation on a real, internet-exposed honeypot, monitored with Microsoft Sentinel.
+Incident detection and end-to-end investigation on a real, internet-exposed honeypot, monitored with Microsoft Sentinel.
 
 | | |
 |---|---|
@@ -13,7 +13,7 @@ Custom detection engineering and incident investigation on a real, internet-expo
 
 ## Overview
 
-A Windows VM (`CORP-NET-TINY-E1`) was deployed in Azure and deliberately exposed to the internet to attract real attack traffic. Failed logon events (Event ID `4625`) flow into a Log Analytics Workspace, where Microsoft Sentinel evaluates three custom analytics rules.
+A Windows VM (`CORP-NET-TINY-E1`) was deployed in Azure and deliberately exposed to the internet to attract real attack traffic. Failed logon events (Event ID `4625`) flow into a Log Analytics Workspace, where Microsoft Sentinel evaluates three analytics rules configured from adapted KQL queries.
 
 The honeypot received **real brute-force traffic from multiple countries**. The resulting incidents were triaged and documented end-to-end — see [Investigation](#investigation).
 
@@ -29,12 +29,14 @@ Internet attackers ──► CORP-NET-TINY-E1 (Azure VM, intentionally exposed)
                               │
                               ▼
                       Microsoft Sentinel
-             (3 custom analytics rules → incidents)
+              (3 analytics rules → incidents)
 ```
 
 ## Detection Rules
 
 Three complementary rules, each targeting a distinct brute-force pattern. All rules are **Medium severity** and **Enabled**.
+
+The queries below are shown as deployed. I adapted and tested them for this environment rather than authoring the detection logic from scratch — see [Credits](#credits) for provenance. Validation was done against the live attack traffic the honeypot attracted.
 
 | # | Rule name | MITRE ATT&CK | Pattern detected |
 |---|-----------|--------------|------------------|
@@ -130,22 +132,21 @@ Full write-up: **[investigation-honeypot-bruteforce.md](./investigation-honeypot
 
 ## Skills Demonstrated
 
-- **Microsoft Sentinel** — custom analytics rules, entity mapping, incident triage
-- **KQL** — `summarize`, `dcount`, `make_set`, `bin()`, time-windowed aggregation
-- **Detection engineering** — complementary rule design, threshold tuning, MITRE ATT&CK mapping
+- **Microsoft Sentinel** — analytics rule configuration, entity mapping, incident triage
+- **KQL (foundational)** — reading, adapting, and testing queries: `summarize`, `dcount`, `make_set`, `bin()`, time-windowed aggregation
+- **MITRE ATT&CK** — mapping observed activity to techniques (T1110, T1110.001, T1110.004)
 - **Windows event log analysis** — failed logon telemetry (Event ID 4625)
 - **Azure** — VM deployment, network exposure, Log Analytics integration
-- **Investigation & documentation** — incident scoping and written analysis
+- **Investigation & documentation** — incident scoping, timeline reconstruction, written analysis
 
-## Design Notes — Quality over Quantity
+## Why These Three Rules
 
-This lab intentionally ships **three tuned rules** rather than a large ruleset:
+The ruleset is deliberately small — three rules with distinct, complementary coverage:
 
 - Each rule covers a **distinct attack pattern** — sustained single-IP brute force, multi-account attempts from one IP, and source-agnostic bursts — with minimal overlap.
-- Thresholds are set to fire on **real attack volume**, not isolated failed logons, keeping incident fidelity high.
+- Thresholds were validated against **real attack volume**, not isolated failed logons, keeping incident fidelity high.
 - Every rule includes **entity mapping**, so incidents auto-populate IP and host entities and are immediately pivotable during investigation.
 - One **deep, documented investigation** demonstrates more analyst capability than a wall of shallow alerts.
-
 
 ## Screenshots
 
@@ -164,7 +165,6 @@ This lab intentionally ships **three tuned rules** rather than a large ruleset:
 ### Attack Map (GeoIP)
 ![Attack Map](screenshots/map.png)
 
-
 ## Credits
 
-Base environment from **Josh Madakor's Cyber Home Lab (Microsoft Sentinel 2025)**. All detection rules, tuning decisions, and the investigation write-up are original extensions of that lab.
+Base environment from **Josh Madakor's Cyber Home Lab (Microsoft Sentinel 2025)**. The KQL detection queries were initially drafted with AI assistance, then adapted, tested, and deployed by me against this environment. The investigation, incident triage, MITRE mapping, and all written analysis are my own work.
