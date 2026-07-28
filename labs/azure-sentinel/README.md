@@ -1,23 +1,23 @@
 # Azure Sentinel Honeypot Lab — Brute-Force Detection & Investigation
 
-Incident detection and end-to-end investigation on a real, internet-exposed honeypot, monitored with Microsoft Sentinel.
+Incident detection and end-to-end investigation on a real, internet-exposed honeypot monitored with Microsoft Sentinel.
 
 | | |
 |---|---|
 | **Author** | Angel Rodriguez Bolivar |
 | **Date** | July 2026 |
-| **Base lab** | Josh Madakor Cyber Home Lab (Microsoft Sentinel 2025) |
+| **Base lab** | Josh Madakor — Cyber Home Lab (Microsoft Sentinel 2025) |
 | **Honeypot VM** | `CORP-NET-TINY-E1` |
 
 ---
 
 ## Overview
 
-A Windows VM (`CORP-NET-TINY-E1`) was deployed in Azure and deliberately exposed to the internet to attract real attack traffic. Failed logon events (Event ID `4625`) flow into a Log Analytics Workspace, where Microsoft Sentinel evaluates three analytics rules configured from adapted KQL queries.
+A Windows VM (`CORP-NET-TINY-E1`) was deployed in Azure and deliberately exposed to the internet to attract live attack traffic. Failed logon events (Event ID `4625`) are forwarded to a Log Analytics Workspace, where Microsoft Sentinel evaluates three brute-force analytics rules and raises incidents.
 
-The honeypot received **real brute-force traffic from multiple countries**. The resulting incidents were triaged and documented end-to-end — see [Investigation](#investigation).
+The honeypot attracted real brute-force traffic from multiple countries within hours of exposure. The highest-volume incident was triaged end to end and closed as a **True Positive**.
 
-> **Key finding:** a single IP address generated **728 failed logon attempts across 8 distinct accounts**.
+> **Key finding:** a single source IP generated **728 failed logon attempts across 8 distinct accounts in roughly one hour.**
 
 ## Lab Architecture
 
@@ -34,119 +34,31 @@ Internet attackers ──► CORP-NET-TINY-E1 (Azure VM, intentionally exposed)
 
 ## Detection Rules
 
-Three complementary rules, each targeting a distinct brute-force pattern. All rules are **Medium severity** and **Enabled**.
+Three complementary rules, each covering a distinct brute-force pattern with minimal overlap. All are Medium severity, enabled, and include entity mapping so incidents auto-populate IP and host entities and are immediately pivotable.
 
-The queries below are shown as deployed. I adapted and tested them for this environment rather than authoring the detection logic from scratch — see [Credits](#credits) for provenance. Validation was done against the live attack traffic the honeypot attracted.
+| # | Rule | MITRE ATT&CK | Threshold |
+|---|------|--------------|-----------|
+| 1 | High Volume Failed Logons from Single IP | [T1110.001](https://attack.mitre.org/techniques/T1110/001/) | ≥ 15 failures from one IP against one host in 1 hour |
+| 2 | Credential Stuffing (Multiple Usernames from Same IP) | [T1110.004](https://attack.mitre.org/techniques/T1110/004/) | ≥ 5 distinct accounts **and** ≥ 10 failures from one IP in 1 hour |
+| 3 | High Volume Failed Logons Burst | [T1110](https://attack.mitre.org/techniques/T1110/) | ≥ 50 failures against a host in any 5-minute window |
+
+Rule 3 is host-centric and source-agnostic, so it still fires when an attacker rotates or distributes source IPs — coverage that rules 1 and 2 lose by keying on `IpAddress`.
+
+Thresholds were tuned against observed attack volume rather than isolated failed logons, keeping incident fidelity high.
+
+**Full queries, comments, and operational notes:** [`../../detections/kql-brute-force-rules.md`](../../detections/kql-brute-force-rules.md)
 
 ![Analytics rules list — all three honeypot rules enabled](screenshots/analytics-rules-list.png)
 
-| # | Rule name | MITRE ATT&CK | Pattern detected |
-|---|-----------|--------------|------------------|
-| 1 | Honeypot - High Volume Failed Logons from Single IP | [T1110.001](https://attack.mitre.org/techniques/T1110/001/) | Sustained brute force from one source |
-| 2 | Honeypot - Credential Stuffing (Multiple Usernames from Same IP) | [T1110.004](https://attack.mitre.org/techniques/T1110/004/) | One IP cycling through many accounts |
-| 3 | Honeypot - High Volume Failed Logons Burst | [T1110](https://attack.mitre.org/techniques/T1110/) | Short, high-volume bursts against a host (source-agnostic) |
-
-### Rule 1: Honeypot - High Volume Failed Logons from Single IP
-
-- **MITRE ATT&CK:** T1110.001 — Brute Force: Password Guessing
-- **Severity:** Medium · **Status:** Enabled
-- **Logic:** ≥ 15 failed logons from a single IP against one host within 1 hour. Captures distinct accounts targeted plus first/last attempt timestamps for timeline context.
-
-```kql
-SecurityEvent
-| where EventID == 4625
-| where TimeGenerated > ago(1h)
-| summarize
-    FailedAttempts = count(),
-    DistinctAccounts = dcount(TargetUserName),
-    FirstAttempt = min(TimeGenerated),
-    LastAttempt = max(TimeGenerated),
-    Accounts = make_set(TargetUserName, 20)
-    by IpAddress, Computer
-| where FailedAttempts >= 15
-| project
-    TimeGenerated = LastAttempt,
-    IpAddress,
-    Computer,
-    FailedAttempts,
-    DistinctAccounts,
-    Accounts,
-    FirstAttempt,
-    LastAttempt
-```
-
-**Entity mapping:** IP → `IpAddress` | Host → `Computer`
-
-![Rule 1 as deployed — rule logic and entity mapping](screenshots/rule-1-single-ip-bruteforce.png)
-
-### Rule 2: Honeypot - Credential Stuffing (Multiple Usernames from Same IP)
-
-- **MITRE ATT&CK:** T1110.004 — Brute Force: Credential Stuffing
-- **Severity:** Medium · **Status:** Enabled
-- **Logic:** ≥ 5 distinct usernames **and** ≥ 10 total failures from a single IP within 1 hour. Catches account-enumeration behavior that single-account thresholds miss. Captures first/last attempt timestamps for timeline context.
-
-```kql
-SecurityEvent
-| where EventID == 4625
-| where TimeGenerated > ago(1h)
-| summarize
-    FailedAttempts = count(),
-    DistinctAccounts = dcount(TargetUserName),
-    FirstAttempt = min(TimeGenerated),
-    LastAttempt = max(TimeGenerated),
-    Accounts = make_set(TargetUserName, 30)
-    by IpAddress, Computer
-| where DistinctAccounts >= 5 and FailedAttempts >= 10
-| project
-    TimeGenerated = LastAttempt,
-    IpAddress,
-    Computer,
-    FailedAttempts,
-    DistinctAccounts,
-    Accounts,
-    FirstAttempt,
-    LastAttempt
-```
-
-**Entity mapping:** IP → `IpAddress` | Host → `Computer`
-
-![Rule 2 as deployed — rule logic and entity mapping](screenshots/rule-2-credential-stuffing.png)
-
-### Rule 3: Honeypot - High Volume Failed Logons Burst
-
-- **MITRE ATT&CK:** T1110 — Brute Force
-- **Severity:** Medium · **Status:** Enabled
-- **Logic:** ≥ 50 failed logons against a host within any 5-minute window over the last 30 minutes. Host-centric and source-agnostic, so it still fires when attackers rotate or distribute source IPs.
-
-```kql
-SecurityEvent
-| where EventID == 4625
-| where TimeGenerated > ago(30m)
-| summarize
-    FailedAttempts = count()
-    by bin(TimeGenerated, 5m), Computer
-| where FailedAttempts >= 50
-| project
-    TimeGenerated,
-    Computer,
-    FailedAttempts
-```
-
-**Entity mapping:** Host → `Computer`
-
-![Rule 3 as deployed — rule logic and entity mapping](screenshots/rule-3-burst.png)
-
 ## Investigation
 
-Attack traffic originated from multiple countries:
+Failed logon traffic originated from multiple countries. The most significant activity — source IP `197.255.224.193`, **728 failed attempts across 8 accounts in ~1 hour** — was investigated end to end: source scoping and GeoIP attribution, enumeration of targeted accounts, and attack timeline reconstruction.
+
+**Disposition: True Positive.** Confirmed automated brute-force activity from external infrastructure. No successful authentication (Event ID `4624`) was observed from the source.
+
+**Full write-up:** [`investigation-honeypot-bruteforce.md`](./investigation-honeypot-bruteforce.md)
 
 ![Attack map — GeoIP view of failed logon sources](screenshots/attack-map-geoip.png)
-
-The most significant activity — **one IP with 728 failed attempts across 8 accounts** — was investigated end-to-end: source scoping, targeted accounts, and attack timeline.
-
-**Disposition: True Positive** — confirmed automated brute-force activity from external infrastructure.
-
-Full write-up: **[investigation-honeypot-bruteforce.md](./investigation-honeypot-bruteforce.md)**
 
 ## Skills Demonstrated
 
@@ -157,15 +69,8 @@ Full write-up: **[investigation-honeypot-bruteforce.md](./investigation-honeypot
 - **Azure** — VM deployment, network exposure, Log Analytics integration
 - **Investigation & documentation** — incident scoping, timeline reconstruction, written analysis
 
-## Why These Three Rules
+## Credits & Transparency
 
-The ruleset is deliberately small — three rules with distinct, complementary coverage:
+Base environment adapted from **Josh Madakor's Cyber Home Lab (Microsoft Sentinel 2025)**.
 
-- Each rule covers a **distinct attack pattern** — sustained single-IP brute force, multi-account attempts from one IP, and source-agnostic bursts — with minimal overlap.
-- Thresholds were validated against **real attack volume**, not isolated failed logons, keeping incident fidelity high.
-- Every rule includes **entity mapping**, so incidents auto-populate IP and host entities and are immediately pivotable during investigation.
-- One **deep, documented investigation** demonstrates more analyst capability than a wall of shallow alerts.
-
-## Credits
-
-Base environment from **Josh Madakor's Cyber Home Lab (Microsoft Sentinel 2025)**. The KQL detection queries were initially drafted with AI assistance, then adapted, tested, and deployed by me against this environment. The investigation, incident triage, MITRE mapping, and all written analysis are my own work.
+The KQL detection queries were initially drafted with AI assistance, then adapted, tested, and deployed by me against this environment. The lab build, incident triage, MITRE mapping, investigation, and all written analysis are my own work.
