@@ -50,6 +50,14 @@ Thresholds were tuned against observed attack volume rather than isolated failed
 
 ![Analytics rules list — all three honeypot rules enabled](screenshots/analytics-rules-list.png)
 
+Rules as deployed, with entity mapping:
+
+![Rule 1 — High Volume Failed Logons from Single IP](screenshots/rule-1-single-ip-bruteforce.png)
+
+![Rule 2 — Credential Stuffing (Multiple Usernames from Same IP)](screenshots/rule-2-credential-stuffing.png)
+
+![Rule 3 — High Volume Failed Logons Burst](screenshots/rule-3-burst.png)
+
 ## Investigation
 
 Failed logon traffic originated from multiple countries. The most significant activity — source IP `197.255.224.193`, **728 failed attempts across 8 accounts in ~1 hour** — was investigated end to end: source scoping and GeoIP attribution, enumeration of targeted accounts, and attack timeline reconstruction.
