@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--AI Assistance Disclosure:
+I used Grok (xAI) to help with code structure, template inheritance, detailed comments, and small improvements.
+The design, content,and all fraud-related logic are my own work based on my professional experience.-->
+    <!-- creating layout.html so flask/jinja can render it and avoid repeating
+     the same code on everypage such as head, navbar, footer-->
+    <head>
+        <!-- Meta tags (tells browser how to display the page )-->
+        <meta charset="UTF-8">
+        <!-- Meta tags (tells browser to adapt width and put zoom to 100% )-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <!-- Dynamic page title-->
+        <title>{% block title %}FraudDetective{% endblock %}</title>
+        <!-- Bootstrap part for style... gives beautiful buttons, tables, dark theme and responsive layout-->
+        <!-- Bootstrap makes this not be ugly-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Chart.js this is the library that created the pie and bar charts
+         it is putted here so any page can use it if it needs charts -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+        <style>
+            /* global styles for the project */
+            body {
+                background-color: #212529; /* dark background */
+                color: #f8f9fa; /* light text for good contrast*/
+            }
+
+            .navbar {
+                background-color: #1d1d21; /* darker navbar than page background*/
+            }
+
+            /* setting customs colors for severity badges
+            the important tag is a CSS tool to indicate that it will override other styles and make this the main */
+            .badge-high {
+                background-color: #dc3545 !important;
+                /* Red for high severity */
+            }
+
+            .badge-medium {
+                background-color: #ffc107 !important;
+                /* Yellow for medium severity */
+            }
+
+            canvas {
+                max-height: 280px;
+                /* Charts size */
+            }
+
+            footer {
+                color: #FF0000; /* red letters for the footer */
+            }
+        </style>
+    </head>
+
+    <body>
+        <!-- NAVIGATION BAR THAT WILL APPEAR ON EVERY PAGE OF THE PROJECT-->
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <!-- we make the content centered and mke it automatically adjusts at every screen size-->
+            <div class="container">
+                <!-- Brand / Logo with hyperlink to be redirected to ./ -->
+                <a class="navbar-brand fw-bold" href="/">Fraudetective SOC</a>
+
+                <!-- navigation menu container-->
+                <div class="navbar-nav">
+                    <!-- button to go to Homepage-->
+                    <a href="/" class="nav-link">HOME</a>
+                    <!-- button to go to Dashboard-->
+                    <a href="/dashboard" class="nav-link">DASHBOARD</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main block (each page extending the layout just need to replace block below with its own content)
+         and mt-4 is the spacing between the navbar and the content-->
+        <div class="container mt-4">
+            {% block content %}{% endblock %}
+        </div>
+
+        <!-- footer for extra info-->
+        <footer class="text-center py-4 mt-5">
+            <p class="mb-0">
+                FRAUDETECTIVE SOC SIMULATOR - CS50X FINAL PROJECT<br>
+                Built by a former Remitly fraud analyst pivoting to cybersecurity.
+            </p>
+        </footer>
+        <!-- Custom scripts block for dashboard and charts. it will run after the html loads
+         that is why is placed here at the end-->
+        {% block scripts %}{% endblock%}
+    </body>
+
+</html>

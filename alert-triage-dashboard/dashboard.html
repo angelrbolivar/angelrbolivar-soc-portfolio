@@ -1,0 +1,148 @@
+{% extends "layout.html" %}
+{% block title %}FD SOC DASHBOARD{% endblock %}
+<!-- AI Assistance Disclosure:
+Original template built with help from Grok (xAI). This revision (POST forms
+for state changes, flash feedback, empty-queue state) refactored with help
+from Claude (Anthropic). The fraud content and triage workflow are my own,
+based on my professional experience. -->
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-1">FD SOC DASHBOARD</h1>
+    <p class="text-center text-secondary mb-4">Queue sorted by severity (High first), then newest.</p>
+
+    <!-- Feedback from the last action (generate / triage / clear) -->
+    {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+            <div class="alert alert-info py-2">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <!-- Controls. Generate and Clear change server state, so they are POST
+         forms. Export is a read-only download, so a plain GET link is correct. -->
+    <div class="mb-3 d-flex gap-2">
+        <form action="/generate" method="post">
+            <button type="submit" class="btn btn-success">Generate alerts (simulated)</button>
+        </form>
+        <form action="/clear" method="post"
+              onsubmit="return confirm('Delete ALL alerts from the queue?')">
+            <button type="submit" class="btn btn-danger">Clear all alerts</button>
+        </form>
+        <a href="/export" class="btn btn-info">Export to CSV</a>
+    </div>
+
+    <!-- Charts -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h5 class="text-center">Severity Distribution</h5>
+            <canvas id="severityChart"></canvas>
+        </div>
+        <div class="col-md-6">
+            <h5 class="text-center">Alerts by Rule Type</h5>
+            <canvas id="ruleChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Triage queue -->
+    <table class="table table-dark table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Alert ID</th>
+                <th>Rule Triggered</th>
+                <th>Severity</th>
+                <th>Status</th>
+                <th>Details</th>
+                <th>Timestamp (UTC)</th>
+                <th>Actions (Triage)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for alert in alerts %}
+            <!-- Row color reflects the analyst's decision -->
+            <tr class="{% if alert.status == 'Suspended' %}table-danger{% elif alert.status == 'Approved' %}table-success{% elif alert.status == 'Escalated' %}table-warning{% else %}table-dark{% endif %}">
+                <td>{{ alert.id }}</td>
+                <td>{{ alert.rule }}</td>
+                <td>
+                    <span class="badge {{ 'badge-high' if alert.severity == 'High' else 'badge-medium' if alert.severity == 'Medium' else 'bg-secondary' }}">
+                        {{ alert.severity }}
+                    </span>
+                </td>
+                <td>{{ alert.status }}</td>
+                <td>{{ alert.details }}</td>
+                <td class="small">{{ alert.timestamp }}</td>
+                <td>
+                    <!-- Each triage action is a POST form: state changes must
+                         never ride on GET links, which crawlers and browser
+                         prefetching can trigger without a user decision. -->
+                    <form action="/triage/{{ alert.id }}/suspended" method="post" class="d-inline"
+                          onsubmit="return confirm('Suspend the account behind alert #{{ alert.id }}?')">
+                        <button type="submit" class="btn btn-sm btn-danger">Suspend</button>
+                    </form>
+                    <form action="/triage/{{ alert.id }}/approved" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                    </form>
+                    <form action="/triage/{{ alert.id }}/escalated" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-warning">Escalate</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" class="text-center text-secondary py-4">
+                    Queue is empty — generate a batch of simulated transactions to start triaging.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p class="text-center text-secondary">Educational SOC simulation — all data is synthetic.</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Alert data injected by Flask; tojson escapes it safely for JavaScript.
+    const alerts = {{ alerts | tojson }};
+
+    if (alerts.length > 0) {
+        // Count severities and rule frequencies for the two charts.
+        let high = 0, medium = 0, low = 0;
+        const ruleCounts = {};
+
+        alerts.forEach(alert => {
+            if (alert.severity === "High") high++;
+            else if (alert.severity === "Medium") medium++;
+            else low++;
+            ruleCounts[alert.rule] = (ruleCounts[alert.rule] || 0) + 1;
+        });
+
+        new Chart(document.getElementById('severityChart'), {
+            type: 'pie',
+            data: {
+                labels: ['High', 'Medium', 'Low'],
+                datasets: [{
+                    data: [high, medium, low],
+                    backgroundColor: ['#dc3545', '#ffc107', '#6c757d']
+                }]
+            },
+            options: { responsive: true }
+        });
+
+        new Chart(document.getElementById('ruleChart'), {
+            type: 'bar',
+            data: {
+                labels: Object.keys(ruleCounts),
+                datasets: [{
+                    label: 'Number of Alerts',
+                    data: Object.values(ruleCounts),
+                    backgroundColor: '#0d6efd'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    }
+</script>
+{% endblock %}
