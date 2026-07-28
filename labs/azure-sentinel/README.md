@@ -79,7 +79,7 @@ SecurityEvent
 
 - **MITRE ATT&CK:** T1110.004 — Brute Force: Credential Stuffing
 - **Severity:** Medium · **Status:** Enabled
-- **Logic:** ≥ 5 distinct usernames **and** ≥ 10 total failures from a single IP within 1 hour. Catches account-enumeration behavior that single-account thresholds miss.
+- **Logic:** ≥ 5 distinct usernames **and** ≥ 10 total failures from a single IP within 1 hour. Catches account-enumeration behavior that single-account thresholds miss. Captures first/last attempt timestamps for timeline context.
 
 ```kql
 SecurityEvent
@@ -88,16 +88,20 @@ SecurityEvent
 | summarize
     FailedAttempts = count(),
     DistinctAccounts = dcount(TargetUserName),
+    FirstAttempt = min(TimeGenerated),
+    LastAttempt = max(TimeGenerated),
     Accounts = make_set(TargetUserName, 30)
     by IpAddress, Computer
 | where DistinctAccounts >= 5 and FailedAttempts >= 10
 | project
-    TimeGenerated = now(),
+    TimeGenerated = LastAttempt,
     IpAddress,
     Computer,
     FailedAttempts,
     DistinctAccounts,
-    Accounts
+    Accounts,
+    FirstAttempt,
+    LastAttempt
 ```
 
 **Entity mapping:** IP → `IpAddress` | Host → `Computer`
@@ -128,6 +132,8 @@ SecurityEvent
 
 Attack traffic originated from multiple countries. The most significant activity — **one IP with 728 failed attempts across 8 accounts** — was investigated end-to-end: source scoping, targeted accounts, and attack timeline.
 
+**Disposition: True Positive** — confirmed automated brute-force activity from external infrastructure.
+
 Full write-up: **[investigation-honeypot-bruteforce.md](./investigation-honeypot-bruteforce.md)**
 
 ## Skills Demonstrated
@@ -151,19 +157,19 @@ The ruleset is deliberately small — three rules with distinct, complementary c
 ## Screenshots
 
 ### Analytics Rules Overview
-![Rules List](screenshots/list%20of%20analytics.png)
+![Analytics rules list](screenshots/analytics-rules-list.png)
 
 ### Rule 1 – High Volume Failed Logons from Single IP
-![Rule 1](screenshots/rule%203.png)
+![Rule 1 – single IP brute force](screenshots/rule-1-single-ip-bruteforce.png)
 
 ### Rule 2 – Credential Stuffing
-![Rule 2](screenshots/rule2.png)
+![Rule 2 – credential stuffing](screenshots/rule-2-credential-stuffing.png)
 
 ### Rule 3 – High Volume Failed Logons Burst
-![Rule 3](screenshots/rule%201.png)
+![Rule 3 – burst detection](screenshots/rule-3-burst.png)
 
 ### Attack Map (GeoIP)
-![Attack Map](screenshots/map.png)
+![Attack map – GeoIP](screenshots/attack-map-geoip.png)
 
 ## Credits
 
