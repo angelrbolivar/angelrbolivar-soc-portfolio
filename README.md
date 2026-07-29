@@ -85,7 +85,7 @@ High-volume alert queue under SLA: live cases, incomplete and sometimes conflict
 │   │   └── investigation-honeypot-bruteforce.md
 │   └── tryhackme/                            # Splunk & Elastic triage labs
 ├── alert-triage-dashboard/                   # Fraud alert triage simulator
-└── playbooks/                                # In progress
+└── playbooks/                                # Documentation about procedures in cybersecurity.
 ```
 
 ---
