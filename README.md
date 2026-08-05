@@ -44,7 +44,7 @@ Guided triage investigations in **Splunk** and **Elastic**, documented with inve
 
 Hands-on Splunk investigations on Blue Team Labs Online, currently underway. Work in progress: SPL search construction, log correlation across sources, and verdict determination on scenario-based incidents.
 
-> **Status:** investigation active, not yet complete. Full write-up and investigation screenshots — documented in the same evidence → verdict → recommendation format as the Sentinel case above — will be added to this repository within 24 hours. No findings are claimed here until that write-up is published.
+> **Status:** investigation active, not yet complete. The full write-up and investigation screenshots — documented in the same evidence → verdict → recommendation format as the Sentinel case above — will be added to this repository once the work is finished. No findings are claimed here until that write-up is published.
 
 ---
 
