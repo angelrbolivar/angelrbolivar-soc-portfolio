@@ -47,7 +47,7 @@ That brought it down to 3 events. Comparing timestamps, two of them lined up at 
 HostUrl=http://139.59.21.147:8080/Invoice.docm
 ```
 
-<img src="screenshots/01-invoice-download.png" width="950" alt="Splunk search showing the HostUrl field for the Invoice.docm download">
+![Splunk search showing the HostUrl field for the Invoice.docm download](screenshots/01-invoice-download.png)
 *Web log event showing Invoice.docm being downloaded from 139.59.21.147:8080.*
 
 **Finding:** the malicious document was downloaded from `139.59.21.147:8080`.
@@ -62,7 +62,7 @@ The same event also contained the download source:
 http://24.199.117.142:1337/svchost.exe
 ```
 
-<img src="screenshots/02-certutil-payload.png" width="950" alt="CommandLine showing certutil.exe fetching the payload">
+![CommandLine showing certutil.exe fetching the payload](screenshots/02-certutil-payload.png)
 *CommandLine showing certutil.exe used to download and save the payload as C:\Windows\Temp\svchost.exe.*
 
 **Finding:** a second-stage payload, disguised as `svchost.exe`, was pulled from an external server and dropped into a non-standard location — the legitimate `svchost.exe` runs from `System32`, not `Temp`.
@@ -74,7 +74,7 @@ index=* Invoice.docm http "C:\Windows\Temp\svchost.exe"
 | table _time User Image CommandLine ParentImage
 ```
 
-<img src="screenshots/03-compromised-user.png" width="950" alt="Table output showing CYBERRANGE\ricksanchez tied to the malicious activity">
+![Table output showing CYBERRANGE\ricksanchez tied to the malicious activity](screenshots/03-compromised-user.png)
 *Table view confirming CYBERRANGE\ricksanchez as the compromised domain account.*
 
 **Finding:** the activity was tied to the domain account **CYBERRANGE\ricksanchez**.
@@ -94,7 +94,7 @@ This returned 2 events. The `CommandLine` field showed `schtasks.exe` being run 
 /create /tn "Microsoft Teams Updater"
 ```
 
-<img src="screenshots/04-persistence.png" width="950" alt="CommandLine showing schtasks.exe creating the Microsoft Teams Updater scheduled task">
+![CommandLine showing schtasks.exe creating the Microsoft Teams Updater scheduled task](screenshots/04-persistence.png)
 *CommandLine showing schtasks.exe creating the "Microsoft Teams Updater" scheduled task.*
 
 **Finding:** persistence was established through a scheduled task named to look like legitimate Microsoft Teams software — the same table also answered what the task was called.
@@ -115,7 +115,7 @@ index=* PowerView ricksanchez
 ```
 This returned 3 events, one of which explicitly logged **PowerView.ps1** being used for AD enumeration.
 
-<img src="screenshots/05-powerview.png" width="950" alt="Splunk event logging PowerView.ps1 used for Active Directory enumeration">
+![Splunk event logging PowerView.ps1 used for Active Directory enumeration](screenshots/05-powerview.png)
 *Event showing PowerView.ps1 executed for AD enumeration.*
 
 **Finding:** the attacker used `PowerView.ps1` to enumerate the domain.
@@ -128,7 +128,7 @@ index=* EventCode=1 powershell ricksanchez
 | sort _time
 ```
 
-<img src="screenshots/06-mimikatz-dcsync.png" width="950" alt="CommandLine showing Invoke-Mimikatz.ps1 running lsadump::dcsync against krbtgt">
+![CommandLine showing Invoke-Mimikatz.ps1 running lsadump::dcsync against krbtgt](screenshots/06-mimikatz-dcsync.png)
 *CommandLine showing Invoke-Mimikatz.ps1 executing lsadump::dcsync against the krbtgt account.*
 
 **Finding:** `Invoke-Mimikatz.ps1` was executed and confirmed as the credential dumping tool.
