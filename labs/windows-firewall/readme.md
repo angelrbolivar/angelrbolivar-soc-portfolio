@@ -13,7 +13,7 @@ Practice creating and configuring firewall rules manually through the Windows De
 
 ## Screenshots
 
-![Inbound Rules list](screenshots/f18.png)
+![Inbound Rules list](screenshots/f18n.png)
 *Inbound Rules list showing the two new rules.*
 
 ![Outbound Rules list](screenshots/f19.png)
