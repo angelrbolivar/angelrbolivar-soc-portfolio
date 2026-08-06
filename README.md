@@ -93,7 +93,7 @@ High-volume alert queue under SLA: live cases, incomplete and sometimes conflict
 │   ├── azure-sentinel/
 │   │   └── investigation-honeypot-bruteforce.md
 │   ├── tryhackme/                            # Splunk & Elastic triage labs
-│   └── btlo/                                 # Blue Team Labs Online — Splunk (write-up in progress)
+│   └── Splunkit/                                 # Blue Team Labs Online — Splunk (write-up in progress)
 ├── alert-triage-dashboard/                   # Fraud alert triage simulator
 └── playbooks/                                # Documentation about procedures in cybersecurity
 ```
